@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!--
+  THE BEACHES BEAT — REUSABLE ISSUE TEMPLATE
+  ------------------------------------------------------------------
+  Table-based, inline-CSS email template built to render across
+  Gmail (web/iOS/Android), Apple Mail, Outlook (Windows + web), and
+  Yahoo. Editorial content is NOT set here — the editor supplies copy
+  via the merge tags below. This file is the *shell*.
+
+  MERGE TAGS (ESP populates these — see newsletter/docs/PUBLISHING-WORKFLOW.md
+  for the tag contract; syntax shown is {{handlebars}} — swap the
+  delimiters for your ESP, e.g. *|MERGE|* in Mailchimp):
+
+    {{preheader}}          Inbox preview text (~90 chars, hidden in body)
+    {{web_version_url}}    Hosted "view in browser" link
+    {{issue_number}}       e.g. 12
+    {{issue_date}}         e.g. Saturday, 4 July 2026
+    {{issue_title}}        Editor-supplied headline for the issue
+    {{issue_dek}}          One-line standfirst under the title (optional)
+    {{content}}            The rendered issue body (see content blocks below)
+    {{subscriber_email}}   Recipient address (for the footer)
+    {{unsubscribe_url}}    One-click unsubscribe link (List-Unsubscribe too)
+    {{preferences_url}}    Manage-preferences link
+    {{company_name}}       The Beaches Beat
+    {{company_address}}    Physical mailing address (CAN-SPAM requirement)
+    {{current_year}}       e.g. 2026
+
+  CONTENT BLOCKS: the editor assembles {{content}} from the reusable
+  partials at the bottom of this file (STORY, DIVIDER, BUTTON, IMAGE).
+  Copy a block, fill it in, stack as many as needed.
+-->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>{{issue_title}}</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    /* Progressive-enhancement styles. Clients that strip <style> still
+       get the inline styles below, so nothing critical lives only here. */
+    html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; }
+    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; border-collapse: collapse !important; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    a { color: #0b7285; }
+    .beat-link { color: #0b7285; text-decoration: underline; }
+
+    /* Mobile */
+    @media screen and (max-width: 600px) {
+      .beat-container { width: 100% !important; }
+      .beat-pad { padding-left: 24px !important; padding-right: 24px !important; }
+      .beat-h1 { font-size: 26px !important; line-height: 32px !important; }
+      .beat-story-h { font-size: 20px !important; line-height: 26px !important; }
+      .beat-btn a { display: block !important; }
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      body, .beat-bg { background-color: #0f1720 !important; }
+      .beat-card { background-color: #16202b !important; }
+      .beat-text, .beat-h1, .beat-story-h { color: #e7edf3 !important; }
+      .beat-muted { color: #9fb0bd !important; }
+      .beat-rule { border-color: #2a3745 !important; }
+      .beat-masthead { color: #e7edf3 !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#eef2f5;">
+  <!-- Preheader: shows in inbox preview, hidden in the open. -->
+  <div style="display:none; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden; mso-hide:all; font-family:sans-serif;">
+    {{preheader}}
+    &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+  </div>
+
+  <table role="presentation" class="beat-bg" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f5;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+
+        <!-- View in browser -->
+        <table role="presentation" class="beat-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+          <tr>
+            <td class="beat-pad" align="center" style="padding:0 32px 12px; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; color:#7a8a97;">
+              <a href="{{web_version_url}}" class="beat-muted" style="color:#7a8a97; text-decoration:underline;">View this issue in your browser</a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Card -->
+        <table role="presentation" class="beat-container beat-card" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden;">
+
+          <!-- Masthead -->
+          <tr>
+            <td class="beat-pad" style="padding:32px 40px 8px; font-family:Georgia,'Times New Roman',serif;">
+              <div class="beat-masthead" style="font-size:26px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#0b3d4d;">The Beaches Beat</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="beat-pad" style="padding:0 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td class="beat-rule" style="border-top:3px solid #0b7285; font-size:0; line-height:0;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="beat-pad" style="padding:12px 40px 0; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:16px; letter-spacing:0.5px; text-transform:uppercase; color:#7a8a97;">
+              Issue #{{issue_number}} &nbsp;&middot;&nbsp; {{issue_date}}
+            </td>
+          </tr>
+
+          <!-- Issue title -->
+          <tr>
+            <td class="beat-pad" style="padding:8px 40px 0; font-family:Georgia,'Times New Roman',serif;">
+              <h1 class="beat-h1 beat-text" style="margin:0; font-size:30px; line-height:36px; font-weight:700; color:#12222e;">{{issue_title}}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td class="beat-pad" style="padding:10px 40px 4px; font-family:Arial,Helvetica,sans-serif; font-size:16px; line-height:24px; color:#5a6b78;">
+              {{issue_dek}}
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td class="beat-pad" style="padding:16px 40px 8px;">
+              {{content}}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="beat-pad" style="padding:8px 40px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td class="beat-rule" style="border-top:1px solid #e2e8ed; font-size:0; line-height:0;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="beat-pad" style="padding:20px 40px 32px; font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:20px; color:#7a8a97;">
+              <p style="margin:0 0 12px;" class="beat-muted">
+                You're receiving <strong style="color:#5a6b78;">The Beaches Beat</strong> because you subscribed at our website with
+                <span style="color:#5a6b78;">{{subscriber_email}}</span>.
+              </p>
+              <p style="margin:0 0 12px;" class="beat-muted">
+                <a href="{{unsubscribe_url}}" class="beat-muted" style="color:#0b7285; text-decoration:underline;">Unsubscribe instantly</a>
+                &nbsp;&middot;&nbsp;
+                <a href="{{preferences_url}}" class="beat-muted" style="color:#0b7285; text-decoration:underline;">Manage preferences</a>
+              </p>
+              <p style="margin:0;" class="beat-muted">
+                {{company_name}} &middot; {{company_address}}<br>
+                &copy; {{current_year}} {{company_name}}. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Sign-off under card -->
+        <table role="presentation" class="beat-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+          <tr>
+            <td class="beat-pad" align="center" style="padding:16px 32px 0; font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:16px; color:#9aa8b3;">
+              Sent with care from the northern beaches.
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!--
+================================================================================
+REUSABLE CONTENT BLOCKS  —  paste into {{content}}, fill in, stack as needed.
+These use the same inline-CSS discipline as the shell above.
+================================================================================
+
+<!-- STORY BLOCK -->
+<h2 class="beat-story-h beat-text" style="margin:20px 0 6px; font-family:Georgia,'Times New Roman',serif; font-size:22px; line-height:28px; font-weight:700; color:#12222e;">STORY HEADLINE</h2>
+<p class="beat-text" style="margin:0 0 14px; font-family:Arial,Helvetica,sans-serif; font-size:16px; line-height:25px; color:#2f3e49;">
+  Body copy. Keep paragraphs short. Links look like
+  <a href="#" class="beat-link" style="color:#0b7285; text-decoration:underline;">this</a>.
+</p>
+
+<!-- DIVIDER -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+  <td class="beat-rule" style="padding:14px 0; border-bottom:1px solid #e2e8ed; font-size:0; line-height:0;">&nbsp;</td>
+</tr></table>
+
+<!-- BUTTON (bulletproof / VML for Outlook) -->
+<table role="presentation" class="beat-btn" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 18px;"><tr><td align="center" bgcolor="#0b7285" style="border-radius:8px;">
+  <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:44px;v-text-anchor:middle;width:220px;" arcsize="18%" strokecolor="#0b7285" fillcolor="#0b7285"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;"><![endif]-->
+  <a href="#" style="display:inline-block; padding:13px 28px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px;">Read the full story &rarr;</a>
+  <!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr></table>
+
+<!-- FULL-WIDTH IMAGE (always set alt + width; many clients block images) -->
+<img src="#" alt="Describe the image" width="520" style="display:block; width:100%; max-width:520px; height:auto; border-radius:8px; margin:8px 0 16px;">
+
+================================================================================
+-->

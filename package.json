@@ -1,0 +1,14 @@
+{
+  "name": "beaches-beat-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Beaches Beat newsletter platform — subscriber DB, double opt-in, one-click unsubscribe, send pipeline.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/e2e.mjs"
+  }
+}
