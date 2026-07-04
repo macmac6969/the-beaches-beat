@@ -5,8 +5,10 @@ so issues land in the inbox, not spam.
 
 ## Decisions locked (2026-07-04, CEO)
 
-- **Hosting:** free hosting for now — **live at https://macmac6969.github.io/the-beaches-beat/**
-  (GitHub Pages, push-to-`main` auto-deploy). No paid custom domain yet.
+- **Hosting:** free hosting for now — **live at https://the-beaches-beat.vercel.app/**
+  (Vercel, git integration: push-to-`main` auto-deploys). No paid custom domain yet.
+  Vercel serves the static landing page only (`framework: null`, `index.html` → `dist/`);
+  the Node backend in `src/` is never built or exposed.
 - **ESP:** **Resend** (free tier 3k/mo, 1-click DKIM). Activate with `RESEND_API_KEY`.
 
 ## Email auth is deferred until a custom domain is bought
