@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Beaches Beat — Analytics</title>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --card: #ffffff;
+    --border: #e8e4dd;
+    --text: #1a1a1a;
+    --muted: #6b6560;
+    --accent: #0057ff;
+    --good: #16a34a;
+    --warn: #d97706;
+    --serious: #ea580c;
+    --critical: #dc2626;
+    --goal: #7c3aed;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.1rem; font-weight: 700; }
+  header .sub { font-size: 0.8rem; color: var(--muted); }
+  .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; background: #fef3c7; color: #92400e; font-weight: 600; }
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* stat grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; }
+  .stat-card .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .35rem; }
+  .stat-card .value { font-size: 1.7rem; font-weight: 700; line-height: 1; }
+  .stat-card .sub { font-size: 0.75rem; color: var(--muted); margin-top: .3rem; }
+  .stat-card .goal-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: .5rem; overflow: hidden; }
+  .stat-card .goal-fill { height: 100%; background: var(--goal); border-radius: 2px; }
+
+  /* section */
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.4rem; }
+  .section h2 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 1rem; }
+
+  /* chart canvas */
+  canvas { display: block; width: 100%; }
+
+  /* deliverability */
+  .deliv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+  .deliv-card { border-radius: 8px; padding: .9rem 1rem; border: 1.5px solid; }
+  .deliv-card.good   { border-color: var(--good);   background: #f0fdf4; }
+  .deliv-card.warning { border-color: var(--warn);  background: #fffbeb; }
+  .deliv-card.serious { border-color: var(--serious); background: #fff7ed; }
+  .deliv-card.critical { border-color: var(--critical); background: #fef2f2; }
+  .deliv-card .d-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .deliv-card .d-value { font-size: 1.4rem; font-weight: 700; margin: .2rem 0; }
+  .deliv-card.good    .d-value { color: var(--good); }
+  .deliv-card.warning .d-value { color: var(--warn); }
+  .deliv-card.serious .d-value { color: var(--serious); }
+  .deliv-card.critical .d-value { color: var(--critical); }
+  .deliv-card .d-status { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+
+  /* per-issue table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
+  td { padding: .5rem .6rem; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .dot.good { background: var(--good); }
+  .dot.warning { background: var(--warn); }
+  .dot.serious { background: var(--serious); }
+  .dot.critical { background: var(--critical); }
+
+  /* funnel */
+  .funnel { display: flex; flex-direction: column; gap: .5rem; }
+  .funnel-row { display: flex; align-items: center; gap: .75rem; }
+  .funnel-bar-wrap { flex: 1; height: 20px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .funnel-bar { height: 100%; background: var(--accent); border-radius: 4px; opacity: .85; transition: width .6s ease; }
+  .funnel-label { font-size: 0.78rem; color: var(--muted); width: 100px; }
+  .funnel-count { font-size: 0.85rem; font-weight: 600; width: 60px; text-align: right; }
+
+  /* two-col layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>The Beaches Beat</h1>
+    <div class="sub">Analytics dashboard</div>
+  </div>
+  <span class="badge" id="sample-badge">Sample data</span>
+</header>
+
+<main>
+  <!-- KPI strip -->
+  <div class="stat-grid" id="kpi-strip"></div>
+
+  <!-- growth chart + funnel -->
+  <div class="two-col">
+    <div class="section">
+      <h2>Subscriber growth</h2>
+      <canvas id="growth-chart" height="160"></canvas>
+    </div>
+    <div class="section">
+      <h2>Sign-up funnel</h2>
+      <div class="funnel" id="funnel"></div>
+    </div>
+  </div>
+
+  <!-- engagement chart -->
+  <div class="section">
+    <h2>Open &amp; click rate — per issue</h2>
+    <canvas id="eng-chart" height="130"></canvas>
+  </div>
+
+  <!-- deliverability panel -->
+  <div class="section">
+    <h2>Deliverability signals</h2>
+    <div class="deliv-grid" id="deliv-grid"></div>
+  </div>
+
+  <!-- per-issue table -->
+  <div class="section">
+    <h2>Issue-by-issue breakdown</h2>
+    <table id="issue-table">
+      <thead>
+        <tr>
+          <th>Issue</th>
+          <th class="num">Sent</th>
+          <th class="num">Open%</th>
+          <th class="num">Click%</th>
+          <th class="num">Unsub%</th>
+          <th class="num">Bounce%</th>
+          <th class="num">Complaint%</th>
+        </tr>
+      </thead>
+      <tbody id="issue-tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script type="module">
+import { dataset } from './data/seed.js';
+import { computeDashboard } from './lib/metrics.js';
+
+const { subscribers, issues } = dataset;
+const d = computeDashboard(subscribers, issues);
+
+const pct = (v) => (v * 100).toFixed(1) + '%';
+const num = (v) => v.toLocaleString();
+
+// --- KPI strip ---
+const GOAL = 1000;
+const kpiData = [
+  { label: 'Active subscribers', value: num(d.totals.active), sub: `Goal: ${GOAL}`, goal: d.totals.active / GOAL },
+  { label: 'Total sign-ups',     value: num(d.totals.total),  sub: `${num(d.totals.pending)} pending confirm` },
+  { label: 'Confirm rate',       value: pct(d.totals.confirmationRate), sub: 'double opt-in' },
+  { label: 'Avg open rate',      value: pct(d.engagement.openRate), sub: 'per delivered' },
+  { label: 'Avg click rate',     value: pct(d.engagement.clickRate), sub: 'per delivered' },
+  { label: 'Unsub rate',         value: pct(d.engagement.unsubRate), sub: 'per delivered' },
+];
+const strip = document.getElementById('kpi-strip');
+for (const k of kpiData) {
+  const card = document.createElement('div');
+  card.className = 'stat-card';
+  card.innerHTML = `
+    <div class="label">${k.label}</div>
+    <div class="value">${k.value}</div>
+    <div class="sub">${k.sub || ''}</div>
+    ${k.goal != null ? `<div class="goal-bar"><div class="goal-fill" style="width:${Math.min(k.goal,1)*100}%"></div></div>` : ''}
+  `;
+  strip.appendChild(card);
+}
+
+// --- Funnel ---
+const funnelEl = document.getElementById('funnel');
+const maxCount = d.funnel[0].count;
+for (const row of d.funnel) {
+  const pctWidth = (row.count / maxCount * 100).toFixed(1);
+  funnelEl.innerHTML += `
+    <div class="funnel-row">
+      <div class="funnel-label">${row.stage}</div>
+      <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:${pctWidth}%"></div></div>
+      <div class="funnel-count">${num(row.count)}</div>
+    </div>`;
+}
+
+// --- Minimal canvas chart helper ---
+function drawLineChart(canvas, datasets, labels, opts = {}) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth - 56;
+  const H = parseInt(canvas.getAttribute('height')) || 160;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = { top: 12, right: 16, bottom: 36, left: 44 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  const allVals = datasets.flatMap(ds => ds.data);
+  const minV = opts.minZero ? 0 : Math.min(...allVals);
+  const maxV = Math.max(...allVals) * 1.05;
+
+  const xOf = (i) => PAD.left + (i / (labels.length - 1)) * cW;
+  const yOf = (v) => PAD.top + cH - ((v - minV) / (maxV - minV)) * cH;
+
+  // grid lines
+  ctx.strokeStyle = '#e8e4dd'; ctx.lineWidth = 1;
+  for (let t = 0; t <= 4; t++) {
+    const y = PAD.top + (t / 4) * cH;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    const val = maxV - (t / 4) * (maxV - minV);
+    ctx.fillStyle = '#6b6560'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(opts.pct ? (val * 100).toFixed(0) + '%' : Math.round(val), PAD.left - 6, y + 3);
+  }
+
+  // x labels
+  ctx.fillStyle = '#6b6560'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(labels.length / 6));
+  for (let i = 0; i < labels.length; i += step) {
+    ctx.fillText(labels[i].slice(5), xOf(i), H - PAD.bottom + 14);
+  }
+
+  // series
+  for (const ds of datasets) {
+    // fill area
+    if (ds.fill) {
+      ctx.beginPath();
+      ctx.moveTo(xOf(0), yOf(ds.data[0]));
+      for (let i = 1; i < ds.data.length; i++) ctx.lineTo(xOf(i), yOf(ds.data[i]));
+      ctx.lineTo(xOf(ds.data.length - 1), PAD.top + cH);
+      ctx.lineTo(xOf(0), PAD.top + cH);
+      ctx.closePath();
+      ctx.fillStyle = ds.color + '22';
+      ctx.fill();
+    }
+    // line
+    ctx.beginPath(); ctx.strokeStyle = ds.color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+    for (let i = 0; i < ds.data.length; i++) {
+      i === 0 ? ctx.moveTo(xOf(i), yOf(ds.data[i])) : ctx.lineTo(xOf(i), yOf(ds.data[i]));
+    }
+    ctx.stroke();
+    // dots
+    for (let i = 0; i < ds.data.length; i++) {
+      ctx.beginPath(); ctx.arc(xOf(i), yOf(ds.data[i]), 3, 0, Math.PI * 2);
+      ctx.fillStyle = ds.color; ctx.fill();
+    }
+  }
+
+  // legend
+  if (datasets.length > 1) {
+    let lx = PAD.left;
+    for (const ds of datasets) {
+      ctx.fillStyle = ds.color; ctx.fillRect(lx, H - 12, 10, 4);
+      ctx.fillStyle = '#6b6560'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(ds.label, lx + 14, H - 8); lx += ctx.measureText(ds.label).width + 30;
+    }
+  }
+}
+
+// --- Growth chart ---
+const growthWeeks = d.growth.map(r => r.week);
+drawLineChart(
+  document.getElementById('growth-chart'),
+  [
+    { label: 'Active subscribers', data: d.growth.map(r => r.cumulativeActive), color: '#0057ff', fill: true },
+  ],
+  growthWeeks,
+  { minZero: true }
+);
+
+// --- Engagement chart ---
+const issueLabels = d.perIssue.map(i => i.sentAt.slice(0, 10));
+drawLineChart(
+  document.getElementById('eng-chart'),
+  [
+    { label: 'Open rate', data: d.perIssue.map(i => i.openRate), color: '#0057ff', fill: false },
+    { label: 'Click rate', data: d.perIssue.map(i => i.clickRate), color: '#16a34a', fill: false },
+  ],
+  issueLabels,
+  { pct: true }
+);
+
+// --- Deliverability ---
+const delivGrid = document.getElementById('deliv-grid');
+const delivItems = [
+  { key: 'bounceRate',    label: 'Bounce rate',    threshNote: 'Warn ≥2%' },
+  { key: 'complaintRate', label: 'Complaint rate', threshNote: 'Warn ≥0.1%' },
+  { key: 'unsubRate',     label: 'Unsub rate',     threshNote: 'Warn ≥0.5%' },
+];
+for (const item of delivItems) {
+  const { value, status } = d.deliverability[item.key];
+  delivGrid.innerHTML += `
+    <div class="deliv-card ${status}">
+      <div class="d-label">${item.label}</div>
+      <div class="d-value">${pct(value)}</div>
+      <div class="d-status">${status} &mdash; <span style="font-weight:400;text-transform:none">${item.threshNote}</span></div>
+    </div>`;
+}
+
+// --- Per-issue table ---
+const tbody = document.getElementById('issue-tbody');
+const statusDot = (metric, val) => {
+  const thresholds = { bounceRate: { warn:.02,serious:.05,critical:.1 }, complaintRate: { warn:.001,serious:.002,critical:.003 }, unsubRate: { warn:.005,serious:.01,critical:.02 } };
+  const t = thresholds[metric];
+  if (!t) return 'good';
+  if (val >= t.critical) return 'critical';
+  if (val >= t.serious) return 'serious';
+  if (val >= t.warn) return 'warning';
+  return 'good';
+};
+for (const issue of d.perIssue) {
+  const shortSubject = issue.subject.length > 38 ? issue.subject.slice(0, 38) + '…' : issue.subject;
+  tbody.innerHTML += `<tr>
+    <td title="${issue.subject}">${shortSubject}</td>
+    <td class="num">${num(issue.sent)}</td>
+    <td class="num">${pct(issue.openRate)}</td>
+    <td class="num">${pct(issue.clickRate)}</td>
+    <td class="num"><span class="dot ${statusDot('unsubRate', issue.unsubRate)}"></span>${pct(issue.unsubRate)}</td>
+    <td class="num"><span class="dot ${statusDot('bounceRate', issue.bounceRate)}"></span>${pct(issue.bounceRate)}</td>
+    <td class="num"><span class="dot ${statusDot('complaintRate', issue.complaintRate)}"></span>${pct(issue.complaintRate)}</td>
+  </tr>`;
+}
+
+// Sample badge visibility
+if (!dataset.sample) document.getElementById('sample-badge').style.display = 'none';
+</script>
+</body>
+</html>
