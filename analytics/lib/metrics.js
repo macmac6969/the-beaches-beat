@@ -1,8 +1,6 @@
 // The Beaches Beat — analytics metrics engine.
 //
-// Pure functions. No I/O, no dates-from-now, fully deterministic given input.
-// Runs in Node (build step) and in the browser (live recompute) — CommonJS +
-// global export shim at the bottom.
+// Pure functions. No I/O, fully deterministic given input. ESM.
 //
 // ---------------------------------------------------------------------------
 // DATA CONTRACT — this is the schema the real platform emits.
@@ -31,10 +29,8 @@
 // seed loader for those two queries and every number below is live.
 // ---------------------------------------------------------------------------
 
-'use strict';
-
-const pct = (num, den) => (den > 0 ? num / den : 0);
-const round = (x, d = 1) => {
+export const pct = (num, den) => (den > 0 ? num / den : 0);
+export const round = (x, d = 1) => {
   const f = Math.pow(10, d);
   return Math.round(x * f) / f;
 };
@@ -43,11 +39,11 @@ const round = (x, d = 1) => {
 
 // A subscriber counts as an active recipient if they confirmed and have not
 // since unsubscribed / bounced / complained.
-function isActive(s) {
+export function isActive(s) {
   return s.status === 'confirmed';
 }
 
-function subscriberTotals(subscribers) {
+export function subscriberTotals(subscribers) {
   const total = subscribers.length;
   const confirmed = subscribers.filter((s) => s.confirmedAt).length;
   const active = subscribers.filter(isActive).length;
@@ -69,7 +65,7 @@ function subscriberTotals(subscribers) {
 }
 
 // Monday-anchored week key, e.g. "2026-05-11".
-function weekKey(iso) {
+export function weekKey(iso) {
   const d = new Date(iso);
   const day = (d.getUTCDay() + 6) % 7; // 0 = Monday
   d.setUTCDate(d.getUTCDate() - day);
@@ -77,7 +73,7 @@ function weekKey(iso) {
 }
 
 // Weekly signups, confirmations and cumulative active-subscriber curve.
-function subscriberGrowthWeekly(subscribers) {
+export function subscriberGrowthWeekly(subscribers) {
   const weeks = new Map();
   const bump = (key, field) => {
     if (!weeks.has(key)) weeks.set(key, { week: key, signups: 0, confirmations: 0, unsubs: 0 });
@@ -100,7 +96,7 @@ function subscriberGrowthWeekly(subscribers) {
 
 // --- Send / engagement metrics ----------------------------------------------
 
-function issueRates(issue) {
+export function issueRates(issue) {
   return {
     ...issue,
     deliveryRate: pct(issue.delivered, issue.sent),
@@ -115,7 +111,7 @@ function issueRates(issue) {
 }
 
 // Program-wide engagement, weighted by volume (not a mean of rates).
-function engagementOverall(issues) {
+export function engagementOverall(issues) {
   const sum = (f) => issues.reduce((a, i) => a + f(i), 0);
   const sent = sum((i) => i.sent);
   const delivered = sum((i) => i.delivered);
@@ -140,13 +136,13 @@ function engagementOverall(issues) {
 
 // --- Deliverability thresholds (industry / ESP norms) ------------------------
 // good < warn <= serious < critical. Used to color the deliverability panel.
-const THRESHOLDS = {
+export const THRESHOLDS = {
   bounceRate: { warn: 0.02, serious: 0.05, critical: 0.1 },
   complaintRate: { warn: 0.001, serious: 0.002, critical: 0.003 },
   unsubRate: { warn: 0.005, serious: 0.01, critical: 0.02 },
 };
 
-function statusFor(metric, value) {
+export function statusFor(metric, value) {
   const t = THRESHOLDS[metric];
   if (!t) return 'good';
   if (value >= t.critical) return 'critical';
@@ -157,7 +153,7 @@ function statusFor(metric, value) {
 
 // --- Period-over-period deltas ----------------------------------------------
 // Compares the latest issue to the previous one (points, not %).
-function latestDeltas(issues) {
+export function latestDeltas(issues) {
   if (issues.length < 2) return {};
   const a = issueRates(issues[issues.length - 2]);
   const b = issueRates(issues[issues.length - 1]);
@@ -172,7 +168,7 @@ function latestDeltas(issues) {
 }
 
 // --- Top-level assembler -----------------------------------------------------
-function computeDashboard(subscribers, issues) {
+export function computeDashboard(subscribers, issues) {
   const sortedIssues = [...issues].sort((a, b) => new Date(a.sentAt) - new Date(b.sentAt));
   const totals = subscriberTotals(subscribers);
   const growth = subscriberGrowthWeekly(subscribers);
@@ -194,21 +190,3 @@ function computeDashboard(subscribers, issues) {
 
   return { totals, growth, engagement, perIssue, deltas, funnel, deliverability, thresholds: THRESHOLDS };
 }
-
-const api = {
-  pct,
-  round,
-  isActive,
-  subscriberTotals,
-  weekKey,
-  subscriberGrowthWeekly,
-  issueRates,
-  engagementOverall,
-  statusFor,
-  latestDeltas,
-  computeDashboard,
-  THRESHOLDS,
-};
-
-if (typeof module !== 'undefined' && module.exports) module.exports = api;
-if (typeof window !== 'undefined') window.BeatMetrics = api;

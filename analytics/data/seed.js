@@ -5,9 +5,7 @@
 //
 // Deterministic: a seeded PRNG (no Date.now / Math.random) => the build is
 // reproducible and diffs are meaningful. Models 8 weekly issues, ~May–Jul 2026,
-// growing from launch toward the 1,000-subscriber goal.
-
-'use strict';
+// growing from launch toward the 1,000-subscriber goal. ESM.
 
 // mulberry32 — tiny seeded PRNG.
 function rng(seed) {
@@ -136,12 +134,10 @@ function buildIssues(subscribers) {
   return issues;
 }
 
-function buildDataset() {
+export function buildDataset() {
   const subscribers = buildSubscribers();
   const issues = buildIssues(subscribers);
   return { subscribers, issues, generatedFor: '2026-07-04', sample: true };
 }
 
-const dataset = buildDataset();
-
-if (typeof module !== 'undefined' && module.exports) module.exports = { buildDataset, dataset };
+export const dataset = buildDataset();
