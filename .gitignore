@@ -5,3 +5,8 @@ node_modules
 .env
 .env.*
 send-pipeline/data/send-logs/
+
+# CUB-4: runtime subscriber DB + captured emails — never commit (PII, grows unbounded)
+data/subscribers.db
+data/subscribers.db-*
+data/outbox/
