@@ -3,41 +3,275 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Beaches Beat — local news for the Beaches</title>
-  <meta name="description" content="The Beaches Beat is a weekly local newsletter for the Beaches community. Subscriptions opening soon." />
+  <title>The Beaches Beat — Local news for the Beaches</title>
+  <meta name="description" content="The Beaches Beat is a free weekly newsletter covering the stories, tides, and happenings that matter on the Beaches. Subscribe today." />
   <meta name="robots" content="index,follow" />
   <meta property="og:title" content="The Beaches Beat" />
-  <meta property="og:description" content="A weekly local newsletter for the Beaches. Subscriptions opening soon." />
+  <meta property="og:description" content="A free weekly local newsletter for the Beaches community. Stories, tides, and happenings — every week." />
   <meta property="og:type" content="website" />
+  <!-- API endpoint — override at build time for split-host deployments -->
+  <meta name="api-base" content="" />
   <style>
-    :root { --sand:#f6f1e7; --ink:#12212b; --sea:#0d7d8c; --sun:#e8963a; }
-    * { box-sizing:border-box; }
-    html,body { margin:0; padding:0; }
-    body {
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      background:var(--sand); color:var(--ink); line-height:1.5;
-      min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding:24px; text-align:center;
+    :root {
+      --sand: #f6f1e7;
+      --ink: #12212b;
+      --sea: #0d7d8c;
+      --sea-dark: #0a6572;
+      --sun: #e8963a;
+      --mist: #e8eff2;
+      --steel: #33454f;
+      --quiet: #6a7880;
+      --radius: 14px;
     }
-    .wrap { max-width:560px; }
-    .kicker { text-transform:uppercase; letter-spacing:.14em; font-size:.8rem; color:var(--sea); font-weight:700; margin:0 0 12px; }
-    h1 { font-size:clamp(2rem,7vw,3.2rem); margin:0 0 16px; line-height:1.05; }
-    p.lead { font-size:1.15rem; margin:0 0 28px; color:#33454f; }
-    .badge { display:inline-block; background:var(--sun); color:#fff; font-weight:600; font-size:.95rem; padding:10px 18px; border-radius:999px; }
-    footer { margin-top:40px; font-size:.8rem; color:#6a7880; }
-    a { color:var(--sea); }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--sand);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    /* ---- layout ---- */
+    .page { display: flex; flex-direction: column; min-height: 100vh; }
+    header { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .wordmark { font-size: .9rem; font-weight: 700; letter-spacing: .02em; color: var(--sea); text-decoration: none; }
+    main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px 60px; }
+    .hero { max-width: 540px; width: 100%; }
+    footer { padding: 28px 24px; text-align: center; font-size: .8rem; color: var(--quiet); border-top: 1px solid #dde5e9; }
+    footer a { color: var(--quiet); }
+
+    /* ---- kicker ---- */
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      text-transform: uppercase; letter-spacing: .13em;
+      font-size: .72rem; font-weight: 700; color: var(--sea);
+      margin-bottom: 18px;
+    }
+    .kicker::before {
+      content: '';
+      display: inline-block; width: 28px; height: 2px;
+      background: var(--sea); border-radius: 2px;
+    }
+
+    /* ---- headline ---- */
+    h1 {
+      font-size: clamp(2rem, 7.5vw, 3rem);
+      line-height: 1.1;
+      margin: 0 0 18px;
+      letter-spacing: -.02em;
+    }
+    h1 em { font-style: normal; color: var(--sea); }
+
+    .lead {
+      font-size: clamp(1rem, 3.5vw, 1.15rem);
+      color: var(--steel);
+      margin: 0 0 32px;
+      max-width: 430px;
+    }
+
+    /* ---- proof points ---- */
+    .proof {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .proof-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: .82rem; color: var(--steel); font-weight: 500;
+    }
+    .proof-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--mist); display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; flex-shrink: 0;
+    }
+
+    /* ---- form ---- */
+    .subscribe-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 28px 28px 24px;
+      box-shadow: 0 2px 16px rgba(13,125,140,.08), 0 0 0 1px rgba(13,125,140,.07);
+    }
+    .subscribe-card h2 { margin: 0 0 18px; font-size: 1.1rem; font-weight: 700; }
+
+    .form-row { display: flex; gap: 10px; }
+    .email-input {
+      flex: 1;
+      padding: 13px 16px;
+      font-size: 1rem;
+      border: 1.5px solid #d1dde3;
+      border-radius: 10px;
+      outline: none;
+      color: var(--ink);
+      background: var(--sand);
+      transition: border-color .15s;
+      min-width: 0;
+    }
+    .email-input:focus { border-color: var(--sea); background: #fff; }
+    .email-input::placeholder { color: #9eadb5; }
+
+    .btn-subscribe {
+      padding: 13px 22px;
+      background: var(--sea);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, transform .1s;
+      flex-shrink: 0;
+    }
+    .btn-subscribe:hover { background: var(--sea-dark); }
+    .btn-subscribe:active { transform: scale(.97); }
+    .btn-subscribe:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+
+    .form-note {
+      margin-top: 12px;
+      font-size: .78rem;
+      color: var(--quiet);
+    }
+
+    /* ---- feedback states ---- */
+    .feedback {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 500;
+      display: none;
+    }
+    .feedback.success { background: #e8f7f5; color: #0a6572; display: block; }
+    .feedback.error   { background: #fef2e8; color: #c05415; display: block; }
+
+    /* ---- mobile ---- */
+    @media (max-width: 420px) {
+      .subscribe-card { padding: 22px 18px 20px; }
+      .form-row { flex-direction: column; }
+      .btn-subscribe { width: 100%; }
+      .proof { gap: 12px; }
+    }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <p class="kicker">The Beaches Beat</p>
-    <h1>Local news for the Beaches, once a week.</h1>
-    <p class="lead">The stories, tides, and happenings that matter to our stretch of coast — in one short, reliable weekly email.</p>
-    <span class="badge">Subscriptions opening soon</span>
-    <footer>
-      The Beaches Beat &middot; a local newsletter.<br />
-      Contact: <a href="mailto:hello@thebeachesbeat.com">hello@thebeachesbeat.com</a>
-    </footer>
+<div class="page">
+  <header>
+    <a href="/" class="wordmark">The Beaches Beat</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <p class="kicker">Free weekly newsletter</p>
+
+      <h1>Local news for<br><em>the Beaches</em>, once a week.</h1>
+
+      <p class="lead">
+        The stories, tides, and happenings that matter on our stretch of coast —
+        delivered to your inbox every week. No fluff. No algorithm. Just local.
+      </p>
+
+      <div class="proof">
+        <span class="proof-item"><span class="proof-icon">✓</span> Free forever</span>
+        <span class="proof-item"><span class="proof-icon">✓</span> One email a week</span>
+        <span class="proof-item"><span class="proof-icon">✓</span> Unsubscribe anytime</span>
+      </div>
+
+      <div class="subscribe-card">
+        <h2>Get the next issue →</h2>
+        <form id="subscribe-form" novalidate>
+          <div class="form-row">
+            <input
+              id="email-input"
+              class="email-input"
+              type="email"
+              name="email"
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+              inputmode="email"
+            />
+            <button class="btn-subscribe" type="submit" id="submit-btn">Subscribe</button>
+          </div>
+          <p class="form-note">Double opt-in — we'll send a confirmation link to verify your address.</p>
+        </form>
+        <div id="feedback" class="feedback" role="alert" aria-live="polite"></div>
+      </div>
+    </div>
   </main>
+
+  <footer>
+    <p>
+      The Beaches Beat &middot; a local newsletter &middot;
+      <a href="mailto:hello@thebeachesbeat.com">hello@thebeachesbeat.com</a>
+    </p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('subscribe-form');
+  var emailInput = document.getElementById('email-input');
+  var btn = document.getElementById('submit-btn');
+  var feedback = document.getElementById('feedback');
+
+  // Resolve API base — allow override via <meta name="api-base" content="https://...">
+  var apiBase = (document.querySelector('meta[name="api-base"]') || {}).content || '';
+  var endpoint = apiBase.replace(/\/$/, '') + '/api/subscribe';
+
+  function showFeedback(msg, type) {
+    feedback.textContent = msg;
+    feedback.className = 'feedback ' + type;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var email = emailInput.value.trim();
+    if (!email) {
+      emailInput.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    feedback.className = 'feedback';
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'landing-page' }),
+    })
+      .then(function (res) {
+        return res.json().then(function (data) {
+          return { ok: res.ok, status: res.status, data: data };
+        });
+      })
+      .then(function (r) {
+        if (r.ok || r.status === 202) {
+          form.style.display = 'none';
+          showFeedback(
+            '✓ Almost there! Check your inbox for a confirmation link.',
+            'success'
+          );
+        } else if (r.status === 400 && r.data && r.data.error === 'invalid_email') {
+          showFeedback('Please enter a valid email address.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Subscribe';
+          emailInput.focus();
+        } else {
+          showFeedback('Something went wrong — please try again.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Subscribe';
+        }
+      })
+      .catch(function () {
+        showFeedback('Could not connect — please try again in a moment.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Subscribe';
+      });
+  });
+})();
+</script>
 </body>
 </html>

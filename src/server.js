@@ -7,12 +7,36 @@ import { config } from './config.js';
 import { openDb, SubscriberStore, isValidEmail } from './db.js';
 import { buildConfirmationEmail, sendEmail, unsubscribeUrl } from './email.js';
 
+// Allowed origins for CORS — the static site may be on a different domain.
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || '')
+  .split(',').map(o => o.trim()).filter(Boolean);
+
+function setCors(req, res) {
+  const origin = req.headers['origin'];
+  if (!origin) return;
+  const allowed =
+    ALLOWED_ORIGINS.includes(origin) ||
+    ALLOWED_ORIGINS.includes('*') ||
+    origin.endsWith('.github.io') ||
+    origin.endsWith('.vercel.app') ||
+    origin === 'http://localhost:3000';
+  if (allowed) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Vary', 'Origin');
+  }
+}
+
 export function createApp(store) {
   return http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const { pathname } = url;
       const method = req.method;
+
+      setCors(req, res);
+      if (method === 'OPTIONS') { res.writeHead(204); return res.end(); }
 
       if (method === 'GET' && pathname === '/') return sendHtml(res, 200, pageHome());
       if (method === 'GET' && pathname === '/healthz') return sendJson(res, 200, { ok: true });
