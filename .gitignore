@@ -1,3 +1,7 @@
 .vercel
 .DS_Store
 node_modules
+*.log
+.env
+.env.*
+send-pipeline/data/send-logs/

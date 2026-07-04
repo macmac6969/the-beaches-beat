@@ -1,0 +1,37 @@
+[
+  {
+    "email": "confirmed.reader@example.com",
+    "name": "Confirmed Reader",
+    "status": "confirmed",
+    "confirmedAt": "2026-07-01T09:00:00.000Z",
+    "unsubscribedAt": null
+  },
+  {
+    "email": "another.local@example.com",
+    "name": "Another Local",
+    "status": "confirmed",
+    "confirmedAt": "2026-07-02T18:30:00.000Z",
+    "unsubscribedAt": null
+  },
+  {
+    "email": "pending.optin@example.com",
+    "name": "Pending Optin",
+    "status": "pending",
+    "confirmedAt": null,
+    "unsubscribedAt": null
+  },
+  {
+    "email": "left.us@example.com",
+    "name": "Former Reader",
+    "status": "unsubscribed",
+    "confirmedAt": "2026-06-01T10:00:00.000Z",
+    "unsubscribedAt": "2026-06-20T12:00:00.000Z"
+  },
+  {
+    "email": "dead.address@example.com",
+    "name": "Bounced Address",
+    "status": "bounced",
+    "confirmedAt": "2026-06-05T10:00:00.000Z",
+    "unsubscribedAt": null
+  }
+]

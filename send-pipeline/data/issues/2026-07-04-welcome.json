@@ -1,0 +1,5 @@
+{
+  "subject": "The Beaches Beat — Issue #0 (send-pipeline test)",
+  "bodyHtml": "<h1>The Beaches Beat</h1><p>This is a test issue that proves our weekly send pipeline works end to end: confirmed subscribers only, one-click unsubscribe, bounce/complaint suppression.</p><p>Real local news starts next week. 🏖️</p>",
+  "bodyText": "The Beaches Beat\n\nThis is a test issue that proves our weekly send pipeline works end to end: confirmed subscribers only, one-click unsubscribe, bounce/complaint suppression.\n\nReal local news starts next week."
+}

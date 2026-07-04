@@ -14,7 +14,7 @@ export function footerText(unsubscribeUrl) {
     `${config.sender.name} · ${config.listName}`,
     config.physicalAddress,
     `Unsubscribe (one-click): ${unsubscribeUrl}`,
-    'You are receiving this because you confirmed your subscription. We never share your email.',
+    'You are receiving this because you signed up at The Beaches Beat. We never share your email.',
   ].join('\n');
 }
 

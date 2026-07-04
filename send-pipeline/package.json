@@ -1,0 +1,13 @@
+{
+  "name": "beaches-beat-send-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Beaches Beat weekly newsletter send pipeline (ESP-agnostic).",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node bin/send.js",
+    "send": "node bin/send.js",
+    "test": "node --test"
+  }
+}
