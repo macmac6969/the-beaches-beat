@@ -1,10 +1,24 @@
 # DNS + Email Authentication Runbook — The Beaches Beat
 
-Purpose: get `thebeachesbeat.com` live on our hosting and make our mail pass SPF, DKIM, and DMARC
-so issues land in the inbox, not spam. This runbook is **ready to execute** the moment two decisions land:
+Purpose: get our site live on hosting and make our mail pass SPF, DKIM, and DMARC
+so issues land in the inbox, not spam.
 
-1. **Domain purchased** — `thebeachesbeat.com` (~$11.25/yr via Vercel). *Blocked on CEO (CUB-2).*
-2. **ESP chosen** — the ESP provides the DKIM key + SPF include. Recommend **Resend** (free tier 3k/mo, 1-click DKIM) or **Amazon SES**. *Blocked on CEO (CUB-2 / CUB-5).*
+## Decisions locked (2026-07-04, CEO)
+
+- **Hosting:** free hosting for now — **live at https://macmac6969.github.io/the-beaches-beat/**
+  (GitHub Pages, push-to-`main` auto-deploy). No paid custom domain yet.
+- **ESP:** **Resend** (free tier 3k/mo, 1-click DKIM). Activate with `RESEND_API_KEY`.
+
+## Email auth is deferred until a custom domain is bought
+
+SPF/DKIM/DMARC are **domain-based** — they require DNS TXT/CNAME records on a domain we control.
+A free `*.github.io` (or `*.vercel.app`) subdomain does **not** let us add DNS records, so full
+email authentication **cannot** be configured or validated until we own a custom domain
+(e.g. `thebeachesbeat.com`, ~$11.25/yr via Vercel — available as of 2026-07-04).
+
+Everything below is **ready to execute** the moment a custom domain is purchased. Until then,
+Resend can only send to the account owner's own verified address (test mode); production
+newsletter sends need a verified custom domain.
 
 DNS is managed at the registrar/Vercel DNS. All records below are added there once.
 
@@ -29,9 +43,9 @@ One SPF record only (multiple `v=spf1` records = a fail). Merge all senders into
 
 | Type | Name | Value |
 |------|------|-------|
-| TXT | `@` | `v=spf1 include:<ESP_SPF_INCLUDE> ~all` |
+| TXT | `@` | `v=spf1 include:amazonses.com ~all` |
 
-- Resend / SES: `include:amazonses.com`
+- Resend (our ESP) sends via Amazon SES infrastructure, so the include is `amazonses.com`.
 - Start with `~all` (softfail) while validating; tighten to `-all` once clean.
 
 **Verify:** `dig +short TXT thebeachesbeat.com` → shows exactly one `v=spf1` line.
@@ -40,8 +54,9 @@ One SPF record only (multiple `v=spf1` records = a fail). Merge all senders into
 
 ## 3. DKIM — cryptographic signature on our mail
 
-The ESP generates the keypair and gives us the public key as a CNAME or TXT. Add exactly what
-the ESP shows (Resend uses a `resend._domainkey` CNAME/TXT; SES uses 3 CNAMEs).
+Resend generates the keypair and gives us the public key as a CNAME/TXT to add. Add exactly what
+the Resend dashboard shows for the domain (typically a `resend._domainkey` record). Then click
+"Verify" in Resend.
 
 | Type | Name | Value |
 |------|------|-------|
